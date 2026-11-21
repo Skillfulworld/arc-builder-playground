@@ -6,7 +6,7 @@ An educational prototype showing how a natural-language idea becomes a working o
 
 Two independent sections inside one dashboard shell, routed by path (`/swap`, `/guestbook`):
 
-1. **Swap Explorer**: a working USDC and cirBTC swap on Arc Testnet, routed by Circle's App Kit swap service (see `docs/uniswap-research.md` for why this is not a direct Uniswap integration).
+1. **Swap Explorer**: two modes on Arc Testnet. **Uniswap quotes** (default) is a read-only Uniswap v4 explorer: live quotes, pools, fees, price impact and a plain-English review, with approvals and swaps disabled. **Testnet swap** is a wallet-signed swap routed by Circle's App Kit swap service (see `docs/uniswap-research.md` for why that one is not a direct Uniswap swap).
 2. **Onchain Guestbook**: connect a wallet, publish a public message, read messages stored in a contract.
 
 ## Stack
@@ -42,16 +42,25 @@ src/
 | --- | --- |
 | Shell, navigation, header, environment banner | Done |
 | Wallet: injected wallets via ConnectKit, address menu with disconnect, network guard (Arc Testnet only) | Done |
-| Swap Explorer: token selector, live quote, fee review, confirmation, wallet-signed swap | Done on Arc Testnet (`SWAP_ENABLED` in `src/lib/env.ts`) |
+| Swap Explorer, Uniswap quotes tab: v4 Quoter quotes, pool tiers and depth, fees, price impact, plain-English review, execution disabled | Done, read-only |
+| Swap Explorer, Testnet swap tab: live quote, fee review, confirmation, wallet-signed swap via App Kit | Done on Arc Testnet (`SWAP_ENABLED` in `src/lib/env.ts`) |
 | Guestbook: form, entries with address and status, pending entry, loading/empty/error states | Done, inert until a contract address is set and `GUESTBOOK_WRITES_ENABLED` is true |
 | Guestbook contract | Not written or deployed |
-| Direct Uniswap integration | Not used: Uniswap does not support Arc Testnet; swaps route through App Kit |
+| Direct Uniswap swap execution | Not built: no supported Uniswap router on Arc Testnet (see the Uniswap tab for what is still needed) |
 
 ## Environments
 
 Arc Testnet is the only configured chain; mainnets are not in the wagmi config, so a wallet on any other network is shown as unsupported with a switch prompt. Two switches in `src/lib/env.ts` control transactions: `SWAP_ENABLED` (on, testnet swaps) and `GUESTBOOK_WRITES_ENABLED` (off until the contract is deployed).
 
-## Swap behaviour and limits
+## Uniswap quotes (read-only)
+
+- Reads the Uniswap v4 StateView and Quoter on Arc Testnet through the public RPC; no wallet is needed. Pool state, quotes, fees, gas units and price impact are all read or computed from chain data.
+- Checks the four standard hookless fee tiers for USDC/cirBTC. Hooked pools are not discovered.
+- Price impact is measured against the pool's fee-free mid price. At 90% impact or more the quote is shown as insufficient liquidity (the Quoter returns a partial fill).
+- Addresses (PoolManager, StateView, Quoter) come from the Uniswap reference in the skill library and were verified on Arc Testnet: each has code and the Quoter and StateView report the expected PoolManager. The app re-checks this on load.
+- Uniswap does not list Arc Testnet as supported. The tab says so and never claims these are market prices.
+
+## Swap behaviour and limits (Testnet swap tab)
 
 - The quote needs a connected wallet on Arc Testnet. The swap runs only from the Swap button click, with the exact tokens and amount of the displayed quote.
 - Routing is chosen by the swap service (the 1 USDC test quote came back through the `lifi` provider), not by this app.
