@@ -23,13 +23,13 @@ Educational onchain prototype on Arc Testnet with two sections: a read-only USDC
 
 ## Deployed contracts
 
-None yet.
+- Guestbook (Arc Testnet, chain 5042002): `0xdb1b657b487c81f68c3613fe4462c121f4ddc3c3`, deployed in tx `0xa1fd5b9ca90cee6447296786760015dc5a99f1551867c0d1e4f6382be7f58e58` (block 73329051). Source-verified on the Arc testnet explorer. Address and deploy block live in `src/lib/deployments.ts`; `VITE_GUESTBOOK_ADDRESS` can override the address.
 
 ## Key Files
 
 - `src/App.tsx` - Composition root (shell + active section)
 - `docs/architecture.md` - Architecture, trust rules, build status
-- `src/lib/env.ts` - Optional `VITE_GUESTBOOK_ADDRESS` (unset means "not configured") and the `SWAP_ENABLED` / `GUESTBOOK_WRITES_ENABLED` switches
+- `src/lib/env.ts` - Optional `VITE_GUESTBOOK_ADDRESS` (unset means "not configured") and the `SWAP_ENABLED` / `GUESTBOOK_WRITES_ENABLED` switches (both on)
 - `src/lib/swapKit.ts` - Circle App Kit swap integration (Arc_Testnet, keyless, browser wallet adapter)
 - `src/components/` - UI components
 - `src/config.ts` - wagmi config (chains, connectors, transports)

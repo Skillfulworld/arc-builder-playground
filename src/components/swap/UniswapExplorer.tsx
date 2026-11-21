@@ -54,8 +54,8 @@ export function UniswapExplorer({ form }: { form: SwapForm }) {
     <div className="grid gap-6 xl:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
       <div className="space-y-6">
         <Notice>
-          Educational and read-only. Uniswap does not list Arc Testnet as a supported network, so these pools are test pools
-          and their prices are not market prices.
+          Arc Testnet quote demonstration, read-only research. Uniswap does not list Arc Testnet as a supported network, so
+          these are test pools and their prices are not market prices. Nothing here is approved or sent.
         </Notice>
         <UniswapQuoteCard form={form} quote={quote} />
         <PlainEnglishReview form={form} quote={quote} />

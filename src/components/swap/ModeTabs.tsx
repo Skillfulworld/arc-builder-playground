@@ -3,8 +3,8 @@ import { cn } from '@/lib/cn'
 export type SwapMode = 'uniswap' | 'app-kit'
 
 const MODES: { id: SwapMode; label: string; hint: string }[] = [
-  { id: 'uniswap', label: 'Uniswap quotes', hint: 'Read-only, nothing sent' },
-  { id: 'app-kit', label: 'Testnet swap', hint: 'Circle App Kit, sends transactions' },
+  { id: 'uniswap', label: 'Uniswap quotes', hint: 'Arc Testnet quote demo, read-only' },
+  { id: 'app-kit', label: 'Testnet swap', hint: 'Circle App Kit, sends testnet txs' },
 ]
 
 /** Switches between the read-only Uniswap explorer and the Circle App Kit testnet swap. */

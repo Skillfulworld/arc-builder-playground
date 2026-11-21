@@ -6,15 +6,15 @@ import { describeTxError, guestbookAbi } from '@/lib/guestbook'
 export type PublishStatus = 'idle' | 'awaiting-wallet' | 'confirming' | 'success' | 'error'
 
 /**
- * Publishing state for the guestbook. Sending is blocked unless transactions are
- * enabled and a contract address is configured, so this stays inert in the prototype.
+ * Publishing state for the guestbook. A message is sent only from the Publish click, to the
+ * deployed contract, after the wallet owner approves it.
  */
 export function usePublishMessage() {
   const { address } = useAccount()
   const { writeContract, data: hash, isPending, error, reset, variables } = useWriteContract()
   const receipt = useWaitForTransactionReceipt({ hash, chainId: ARC_CHAIN_ID })
 
-  const canSend = GUESTBOOK_WRITES_ENABLED && Boolean(GUESTBOOK_ADDRESS)
+  const canSend = GUESTBOOK_WRITES_ENABLED
 
   let status: PublishStatus = 'idle'
   if (isPending) status = 'awaiting-wallet'
@@ -22,10 +22,19 @@ export function usePublishMessage() {
   else if (receipt.isSuccess) status = 'success'
   else if (hash) status = 'confirming'
 
-  const errorMessage = status === 'error' ? describeTxError(receipt.error ?? error) : null
+  // A transaction that was mined but reverted is a failure too, even though the receipt loaded.
+  const reverted = receipt.data?.status === 'reverted'
+  if (reverted) status = 'error'
+
+  const errorMessage =
+    status === 'error'
+      ? reverted
+        ? 'The transaction was mined but the contract rejected it. Check the message and try again.'
+        : describeTxError(receipt.error ?? error)
+      : null
 
   const publish = (text: string) => {
-    if (!canSend || !GUESTBOOK_ADDRESS) return
+    if (!canSend) return
     reset()
     writeContract({
       address: GUESTBOOK_ADDRESS,

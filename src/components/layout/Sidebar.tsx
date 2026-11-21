@@ -48,8 +48,7 @@ export function Sidebar({ section, onNavigate }: SidebarProps) {
             Educational prototype
           </div>
           <p className="mt-2 text-pretty text-xs text-subtle">
-            Runs on Arc Testnet only. Nothing here is financial advice, and no transactions are sent from the swap
-            section.
+            Runs on Arc Testnet only, with test funds. The Guestbook and the Testnet swap send transactions after you approve them. The Uniswap quotes tab is read-only research.
           </p>
         </div>
       </div>

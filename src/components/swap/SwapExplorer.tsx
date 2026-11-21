@@ -5,6 +5,7 @@ import { useSwapForm } from '@/hooks/useSwapForm'
 import { SWAP_ENABLED } from '@/lib/env'
 import { AppKitSwap } from './AppKitSwap'
 import { ModeTabs, type SwapMode } from './ModeTabs'
+import { TestnetGuide } from '@/components/layout/TestnetGuide'
 import { UniswapExplorer } from './UniswapExplorer'
 
 export function SwapExplorer() {
@@ -23,7 +24,7 @@ export function SwapExplorer() {
         }
         aside={
           mode === 'uniswap' ? (
-            <Badge tone="accent">Read-only quotes</Badge>
+            <Badge tone="accent">Arc Testnet quote demo</Badge>
           ) : (
             <Badge tone={SWAP_ENABLED ? 'success' : 'accent'}>{SWAP_ENABLED ? 'Testnet swaps live' : 'Read-only preview'}</Badge>
           )
@@ -33,6 +34,8 @@ export function SwapExplorer() {
       <ModeTabs mode={mode} onChange={setMode} />
 
       {mode === 'uniswap' ? <UniswapExplorer form={form} /> : <AppKitSwap form={form} />}
+
+      <TestnetGuide />
     </div>
   )
 }

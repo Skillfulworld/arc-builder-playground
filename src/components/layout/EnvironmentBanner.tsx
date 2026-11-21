@@ -11,7 +11,7 @@ export function EnvironmentBanner() {
           <span className="font-semibold text-ink-2">Testnet environment.</span> Arc Testnet with test USDC only; Arc
           mainnet is never used.{' '}
           {SWAP_ENABLED
-            ? 'Swaps send Arc Testnet transactions, and your wallet asks you to approve each one.'
+            ? 'The Guestbook and the Testnet swap send Arc Testnet transactions, and your wallet asks you to approve each one.'
             : 'Transactions are switched off at this stage, so nothing can be sent.'}
         </p>
       </div>

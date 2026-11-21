@@ -44,13 +44,13 @@ src/
 | Wallet: injected wallets via ConnectKit, address menu with disconnect, network guard (Arc Testnet only) | Done |
 | Swap Explorer, Uniswap quotes tab: v4 Quoter quotes, pool tiers and depth, fees, price impact, plain-English review, execution disabled | Done, read-only |
 | Swap Explorer, Testnet swap tab: live quote, fee review, confirmation, wallet-signed swap via App Kit | Done on Arc Testnet (`SWAP_ENABLED` in `src/lib/env.ts`) |
-| Guestbook: form, entries with address and status, pending entry, loading/empty/error states | Done, inert until a contract address is set and `GUESTBOOK_WRITES_ENABLED` is true |
+| Guestbook: form, entries with address, time and transaction link, pending/confirmed/failed states, refresh after posting | Done and live on Arc Testnet (`0xdb1b657b487c81f68c3613fe4462c121f4ddc3c3`) |
 | Guestbook contract | Not written or deployed |
 | Direct Uniswap swap execution | Not built: no supported Uniswap router on Arc Testnet (see the Uniswap tab for what is still needed) |
 
 ## Environments
 
-Arc Testnet is the only configured chain; mainnets are not in the wagmi config, so a wallet on any other network is shown as unsupported with a switch prompt. Two switches in `src/lib/env.ts` control transactions: `SWAP_ENABLED` (on, testnet swaps) and `GUESTBOOK_WRITES_ENABLED` (off until the contract is deployed).
+Arc Testnet is the only configured chain; mainnets are not in the wagmi config, so a wallet on any other network is shown as unsupported with a switch prompt. Two switches in `src/lib/env.ts` control transactions: `SWAP_ENABLED` (testnet swaps) and `GUESTBOOK_WRITES_ENABLED` (guestbook posts). Both are on; each send needs wallet approval.
 
 ## Uniswap quotes (read-only)
 
@@ -68,5 +68,4 @@ Arc Testnet is the only configured chain; mainnets are not in the wagmi config, 
 
 ## Next steps
 
-1. Write, test and audit the Guestbook contract, deploy to Arc Testnet, set `VITE_GUESTBOOK_ADDRESS`, then enable `GUESTBOOK_WRITES_ENABLED`.
-2. Optionally add a price-impact warning once a reference price source is chosen.
+1. Optionally add a price-impact warning once a reference price source is chosen.

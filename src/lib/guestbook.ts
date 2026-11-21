@@ -1,8 +1,14 @@
 /**
- * Interface of contracts/Guestbook.sol, kept in step with the contract.
- * The contract is reviewed and tested but not deployed yet; after deployment this
- * ABI can be regenerated from the compiled artifact.
+ * Interface of contracts/Guestbook.sol as deployed on Arc Testnet (see deployments.ts).
+ * `scripts` checks this ABI against the compiled artifact; keep them in step.
  */
+import { parseAbiItem } from 'viem'
+
+
+/** The event emitted for every message; its transaction hash is the message's receipt. */
+export const messageAddedEvent = parseAbiItem(
+  'event MessageAdded(uint256 indexed id, address indexed author, uint64 timestamp, string text)',
+)
 
 /** Maximum message length in characters (Unicode code points), enforced by the contract. */
 export const MAX_MESSAGE_LENGTH = 280

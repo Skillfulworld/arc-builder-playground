@@ -8,7 +8,6 @@ import { useNetwork } from '@/hooks/useNetwork'
 import type { PublishState } from '@/hooks/usePublishMessage'
 import { explorerTxUrl } from '@/lib/arc'
 import { cn } from '@/lib/cn'
-import { GUESTBOOK_ADDRESS } from '@/lib/env'
 import { byteLength, characterCount, MAX_MESSAGE_BYTES, MAX_MESSAGE_LENGTH } from '@/lib/guestbook'
 
 interface MessageFormProps {
@@ -36,11 +35,7 @@ export function MessageForm({ publish, onPosted }: MessageFormProps) {
   const trimmed = current.trim()
   const busy = status === 'awaiting-wallet' || status === 'confirming'
 
-  const disabledReason = !GUESTBOOK_ADDRESS
-    ? 'Contract not deployed yet'
-    : !canSend
-      ? 'Publishing is switched off'
-      : null
+  const disabledReason = canSend ? null : 'Publishing is switched off'
 
   return (
     <Card strong className="space-y-4">
@@ -98,13 +93,42 @@ export function MessageForm({ publish, onPosted }: MessageFormProps) {
 
       {disabledReason && network.isReady && (
         <p className="text-pretty text-center text-xs text-subtle">
-          {GUESTBOOK_ADDRESS
-            ? 'Transactions are switched off at this stage, so nothing can be sent.'
-            : 'Set VITE_GUESTBOOK_ADDRESS after the contract is deployed. Nothing can be sent until then.'}
+          Publishing is switched off in this build, so nothing can be sent.
         </p>
       )}
 
-      {status === 'error' && publish.errorMessage && <Notice tone="danger">{publish.errorMessage}</Notice>}
+      {status === 'error' && publish.errorMessage && (
+        <Notice tone="danger">
+          {publish.errorMessage}
+          {hash && (
+            <>
+              {' '}
+              <a
+                href={explorerTxUrl(hash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-semibold underline-offset-2 hover:underline"
+              >
+                View transaction <ExternalLink className="size-3" aria-hidden />
+              </a>
+            </>
+          )}
+        </Notice>
+      )}
+
+      {status === 'confirming' && hash && (
+        <Notice>
+          Transaction submitted, waiting for confirmation.{' '}
+          <a
+            href={explorerTxUrl(hash)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 font-semibold text-accent underline-offset-2 hover:underline"
+          >
+            View transaction <ExternalLink className="size-3" aria-hidden />
+          </a>
+        </Notice>
+      )}
 
       {status === 'success' && hash && (
         <Notice>

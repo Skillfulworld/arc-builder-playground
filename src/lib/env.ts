@@ -5,6 +5,7 @@
  * "not configured" state instead of guessing an address.
  */
 import { isAddress, type Address } from 'viem'
+import { GUESTBOOK_DEPLOYMENT } from './deployments'
 
 const parseAddress = (value: unknown): Address | undefined =>
   typeof value === 'string' && isAddress(value) ? value : undefined
@@ -12,8 +13,11 @@ const parseAddress = (value: unknown): Address | undefined =>
 /** Swaps send Arc Testnet transactions (token allowance and the swap) after the user clicks Swap. */
 export const SWAP_ENABLED = true
 
-/** Guestbook publishing stays off until its contract is deployed and reviewed. */
-export const GUESTBOOK_WRITES_ENABLED = false
+/** Guestbook publishing: on, because the reviewed contract is deployed on Arc Testnet. */
+export const GUESTBOOK_WRITES_ENABLED = true
 
-/** Deployed Onchain Guestbook contract on Arc Testnet. */
-export const GUESTBOOK_ADDRESS = parseAddress(import.meta.env.VITE_GUESTBOOK_ADDRESS)
+/**
+ * Onchain Guestbook contract on Arc Testnet. Defaults to the deployment recorded in
+ * `deployments.ts`; `VITE_GUESTBOOK_ADDRESS` can override it (for example to test a redeploy).
+ */
+export const GUESTBOOK_ADDRESS: Address = parseAddress(import.meta.env.VITE_GUESTBOOK_ADDRESS) ?? GUESTBOOK_DEPLOYMENT.address
