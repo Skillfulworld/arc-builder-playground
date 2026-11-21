@@ -1,6 +1,6 @@
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { ARC_CHAIN_ID } from '@/lib/arc'
-import { GUESTBOOK_ADDRESS, WRITES_ENABLED } from '@/lib/env'
+import { GUESTBOOK_ADDRESS, GUESTBOOK_WRITES_ENABLED } from '@/lib/env'
 import { describeTxError, guestbookAbi } from '@/lib/guestbook'
 
 export type PublishStatus = 'idle' | 'awaiting-wallet' | 'confirming' | 'success' | 'error'
@@ -14,7 +14,7 @@ export function usePublishMessage() {
   const { writeContract, data: hash, isPending, error, reset, variables } = useWriteContract()
   const receipt = useWaitForTransactionReceipt({ hash, chainId: ARC_CHAIN_ID })
 
-  const canSend = WRITES_ENABLED && Boolean(GUESTBOOK_ADDRESS)
+  const canSend = GUESTBOOK_WRITES_ENABLED && Boolean(GUESTBOOK_ADDRESS)
 
   let status: PublishStatus = 'idle'
   if (isPending) status = 'awaiting-wallet'

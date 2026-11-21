@@ -1,5 +1,5 @@
 import { ShieldCheck } from 'lucide-react'
-import { WRITES_ENABLED } from '@/lib/env'
+import { SWAP_ENABLED } from '@/lib/env'
 
 /** Always-visible environment statement: testnet only, and whether transactions are possible. */
 export function EnvironmentBanner() {
@@ -10,8 +10,8 @@ export function EnvironmentBanner() {
         <p className="text-pretty">
           <span className="font-semibold text-ink-2">Testnet environment.</span> Arc Testnet with test USDC only; Arc
           mainnet is never used.{' '}
-          {WRITES_ENABLED
-            ? 'Your wallet will ask you to approve every transaction.'
+          {SWAP_ENABLED
+            ? 'Swaps send Arc Testnet transactions, and your wallet asks you to approve each one.'
             : 'Transactions are switched off at this stage, so nothing can be sent.'}
         </p>
       </div>

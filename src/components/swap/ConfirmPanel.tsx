@@ -1,10 +1,14 @@
 import { ConnectKitButton } from 'connectkit'
-import { CheckCircle2, Circle } from 'lucide-react'
+import { CheckCircle2, Circle, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { Notice } from '@/components/ui/Notice'
+import type { ExecuteSwapState } from '@/hooks/useExecuteSwap'
 import { useNetwork } from '@/hooks/useNetwork'
+import type { QuoteState } from '@/hooks/useQuote'
 import type { SwapForm } from '@/hooks/useSwapForm'
-import { WRITES_ENABLED } from '@/lib/env'
+import { explorerTxUrl } from '@/lib/arc'
+import { SWAP_ENABLED } from '@/lib/env'
 
 interface Check {
   label: string
@@ -12,18 +16,62 @@ interface Check {
   hint: string
 }
 
-/** Confirmation area: a plain checklist of what must be true, then the single confirm action. */
-export function ConfirmPanel({ form }: { form: SwapForm }) {
+interface ConfirmPanelProps {
+  form: SwapForm
+  quote: QuoteState
+  swap: ExecuteSwapState
+}
+
+/** Confirmation area: what must be true, the single confirm action, and the outcome. */
+export function ConfirmPanel({ form, quote, swap }: ConfirmPanelProps) {
   const network = useNetwork()
+  const pending = swap.status === 'pending'
+
+  if (swap.status === 'success' && swap.result) {
+    const { result } = swap
+    const link = result.explorerUrl ?? explorerTxUrl(result.txHash)
+    return (
+      <Card strong className="space-y-4 border-success/30" aria-labelledby="confirm-heading">
+        <h2 id="confirm-heading" className="display text-xl font-semibold text-ink">
+          3. Swap submitted
+        </h2>
+        <Notice>
+          {result.amountOut
+            ? `Swapped ${result.amountIn} ${form.from.symbol} for about ${result.amountOut} ${form.to.symbol}.`
+            : `Swapped ${result.amountIn} ${form.from.symbol} for ${form.to.symbol}.`}{' '}
+          Status: {result.progress.status.toLowerCase()}.
+        </Notice>
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent underline-offset-2 hover:underline"
+        >
+          View transaction <ExternalLink className="size-3.5" aria-hidden />
+        </a>
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={() => {
+            swap.reset()
+            form.onAmountChange('')
+          }}
+        >
+          Start another swap
+        </Button>
+      </Card>
+    )
+  }
 
   const checks: Check[] = [
     { label: 'Wallet connected', done: network.isConnected, hint: 'Connect a browser wallet.' },
     { label: 'Wallet on Arc Testnet', done: network.isReady, hint: 'Switch your wallet to Arc Testnet.' },
     { label: 'Valid amount within your balance', done: form.amountState === 'ok', hint: 'Enter an amount you can cover.' },
-    { label: 'Live quote available', done: false, hint: 'No quote source is connected yet.' },
-    { label: 'Transactions enabled', done: WRITES_ENABLED, hint: 'Turned off while this is a read-only prototype.' },
+    { label: 'Live quote available', done: quote.status === 'ready', hint: quote.reason },
+    { label: 'Swaps enabled', done: SWAP_ENABLED, hint: 'Swaps are switched off in this build.' },
   ]
   const blocker = checks.find((check) => !check.done)
+  const provider = quote.estimate?.route?.provider
 
   return (
     <Card strong className="space-y-4 border-accent/30" aria-labelledby="confirm-heading">
@@ -65,15 +113,19 @@ export function ConfirmPanel({ form }: { form: SwapForm }) {
           Switch to Arc Testnet
         </Button>
       ) : (
-        <Button disabled className="w-full">
-          Confirm swap
+        <Button onClick={swap.execute} disabled={Boolean(blocker)} loading={pending} className="w-full">
+          {pending ? 'Confirm in your wallet…' : `Swap ${form.amount || '0'} ${form.from.symbol} for ${form.to.symbol}`}
         </Button>
       )}
 
+      {swap.status === 'error' && swap.errorMessage && <Notice tone="danger">{swap.errorMessage}</Notice>}
+
       <p className="text-pretty text-center text-xs text-subtle" aria-live="polite">
-        {network.isReady && blocker
-          ? `Not ready: ${blocker.label.toLowerCase()}. ${blocker.hint}`
-          : 'Nothing is sent from this screen.'}
+        {pending
+          ? 'Your wallet may ask you to approve spending first, then to confirm the swap. Approve each prompt.'
+          : provider
+            ? `Routed by ${provider} through Circle's swap service. The route can change, and the provider's terms apply. Test funds only.`
+            : 'Swaps run on Arc Testnet with test funds. Your wallet asks you to approve each step.'}
       </p>
     </Card>
   )

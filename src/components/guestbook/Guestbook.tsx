@@ -5,7 +5,7 @@ import { SetupChecklist } from '@/components/ui/SetupChecklist'
 import { useGuestbookMessages } from '@/hooks/useGuestbook'
 import { useInjectedWallet } from '@/hooks/useInjectedWallet'
 import { usePublishMessage } from '@/hooks/usePublishMessage'
-import { GUESTBOOK_ADDRESS, WRITES_ENABLED } from '@/lib/env'
+import { GUESTBOOK_ADDRESS, GUESTBOOK_WRITES_ENABLED } from '@/lib/env'
 import { ContractPlan } from './ContractPlan'
 import { MessageForm } from './MessageForm'
 import { MessageList } from './MessageList'
@@ -51,8 +51,8 @@ export function Guestbook() {
               },
               {
                 label: 'Transactions',
-                ready: WRITES_ENABLED,
-                detail: WRITES_ENABLED ? 'Enabled' : 'Switched off in this prototype (WRITES_ENABLED in src/lib/env.ts)',
+                ready: GUESTBOOK_WRITES_ENABLED,
+                detail: GUESTBOOK_WRITES_ENABLED ? 'Enabled' : 'Switched off in this prototype (GUESTBOOK_WRITES_ENABLED in src/lib/env.ts)',
               },
             ]}
           />

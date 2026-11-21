@@ -1,11 +1,11 @@
 import { Card, CardTitle } from '@/components/ui/Card'
 
 const STEPS = [
-  { title: 'Pick the pair', body: 'Choose the token you pay with and the token you want. Here: USDC for cirBTC.' },
-  { title: 'Ask for a quote', body: 'A read-only call asks the pool what you would receive. Nothing is signed or sent.' },
-  { title: 'Allow the router', body: 'Your wallet grants a spending allowance so the router can pull USDC. This is the first transaction.' },
-  { title: 'Swap', body: 'The router trades against the pool and reverts if the price moves beyond your slippage tolerance.' },
-  { title: 'Confirm', body: 'Arc finalizes in under a second. You receive cirBTC and can open the receipt in the explorer.' },
+  { title: 'Pick the pair', body: 'Choose the token you pay with and the token you want, then enter a small amount.' },
+  { title: 'Get a live quote', body: 'Circle\'s swap service finds a route and estimates your output. This is a read-only request: nothing is signed or sent.' },
+  { title: 'Review', body: 'Check the effective rate, the minimum you will receive at your slippage tolerance, and the fees.' },
+  { title: 'Approve and swap', body: 'Your wallet may first ask you to allow spending of the token you pay with, then to confirm the swap. You approve each prompt.' },
+  { title: 'Confirm', body: 'Arc finalizes in under a second. You receive the token and can open the receipt in the explorer.' },
 ]
 
 /** Educational walkthrough of what a swap does under the hood. */
@@ -13,7 +13,7 @@ export function SwapFlow() {
   return (
     <Card>
       <CardTitle>How a swap works</CardTitle>
-      <p className="mt-1 text-sm text-muted">The five steps this explorer will walk through once quoting is live.</p>
+      <p className="mt-1 text-sm text-muted">The five steps this explorer walks you through.</p>
       <ol className="mt-5 space-y-4">
         {STEPS.map((step, index) => (
           <li key={step.title} className="flex gap-3.5">

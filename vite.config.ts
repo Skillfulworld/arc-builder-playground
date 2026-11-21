@@ -24,6 +24,8 @@ export default defineConfig({
       'viem',
       'viem/chains',
       'connectkit',
+      '@circle-fin/app-kit',
+      '@circle-fin/adapter-viem-v2',
       'framer-motion',
       'lucide-react',
       'sonner',

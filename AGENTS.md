@@ -29,7 +29,8 @@ None yet.
 
 - `src/App.tsx` - Composition root (shell + active section)
 - `docs/architecture.md` - Architecture, trust rules, build status
-- `src/lib/env.ts` - Optional `VITE_GUESTBOOK_ADDRESS` and `VITE_UNISWAP_QUOTER_ADDRESS`; unset means "not configured" in the UI
+- `src/lib/env.ts` - Optional `VITE_GUESTBOOK_ADDRESS` (unset means "not configured") and the `SWAP_ENABLED` / `GUESTBOOK_WRITES_ENABLED` switches
+- `src/lib/swapKit.ts` - Circle App Kit swap integration (Arc_Testnet, keyless, browser wallet adapter)
 - `src/components/` - UI components
 - `src/config.ts` - wagmi config (chains, connectors, transports)
 

@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi'
 import { otherToken, TOKENS, type TokenSymbol } from '@/lib/tokens'
 import { useTokenBalance } from './useToken'
 
-export const SLIPPAGE_OPTIONS = ['0.1', '0.5', '1.0'] as const
+export const SLIPPAGE_OPTIONS = ['0.5', '1', '3', '10'] as const
 export type Slippage = (typeof SLIPPAGE_OPTIONS)[number]
 
 export type AmountState = 'empty' | 'invalid' | 'insufficient' | 'ok'
@@ -14,7 +14,7 @@ export function useSwapForm() {
   const { address, isConnected } = useAccount()
   const [fromSymbol, setFromSymbol] = useState<TokenSymbol>('USDC')
   const [amount, setAmount] = useState('')
-  const [slippage, setSlippage] = useState<Slippage>('0.5')
+  const [slippage, setSlippage] = useState<Slippage>('3')
 
   const from = TOKENS[fromSymbol]
   const to = TOKENS[otherToken(fromSymbol)]
@@ -56,6 +56,7 @@ export function useSwapForm() {
     amountState,
     balance,
     slippage,
+    slippageBps: Math.round(Number(slippage) * 100),
     setSlippage,
     onAmountChange,
     selectFrom: setFrom,
