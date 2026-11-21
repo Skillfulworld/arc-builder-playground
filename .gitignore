@@ -1,0 +1,54 @@
+# Secrets and local environment (never commit)
+.env
+.env.*
+!.env.example
+.circle/
+recovery_file*
+*.pem
+*.key
+*.keystore
+secrets/
+
+# Dependencies
+node_modules/
+.pnp.*
+.yarn/
+
+# Build output
+dist/
+build/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+/out/
+/cache/
+/broadcast/
+# Foundry dependencies: restore with `forge install foundry-rs/forge-std`
+/lib/
+
+# Arc Studio runtime files
+console.jsonl
+traces.jsonl
+.agents/
+contracts/contract-metadata/*.json
+contracts/imported/
+
+# Nested clone of this same repository (the repo root is the project folder)
+arc-builder-playground/
+
+# Logs
+*.log
+npm-debug.log*
+bun-debug.log*
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
