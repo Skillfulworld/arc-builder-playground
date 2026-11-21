@@ -9,7 +9,7 @@ import type { PublishState } from '@/hooks/usePublishMessage'
 import { explorerTxUrl } from '@/lib/arc'
 import { cn } from '@/lib/cn'
 import { GUESTBOOK_ADDRESS } from '@/lib/env'
-import { byteLength, MAX_MESSAGE_BYTES } from '@/lib/guestbook'
+import { byteLength, characterCount, MAX_MESSAGE_BYTES, MAX_MESSAGE_LENGTH } from '@/lib/guestbook'
 
 interface MessageFormProps {
   publish: PublishState
@@ -31,8 +31,8 @@ export function MessageForm({ publish, onPosted }: MessageFormProps) {
 
   // After a confirmed post the box reads as empty; typing again clears the receipt.
   const current = status === 'success' ? '' : text
-  const bytes = byteLength(current)
-  const tooLong = bytes > MAX_MESSAGE_BYTES
+  const characters = characterCount(current)
+  const tooLong = characters > MAX_MESSAGE_LENGTH || byteLength(current) > MAX_MESSAGE_BYTES
   const trimmed = current.trim()
   const busy = status === 'awaiting-wallet' || status === 'confirming'
 
@@ -67,7 +67,7 @@ export function MessageForm({ publish, onPosted }: MessageFormProps) {
         <div id="guestbook-help" className="mt-2 flex items-center justify-between gap-3 text-xs">
           <span className="text-subtle">Public and permanent. Anyone can read it.</span>
           <span className={cn('shrink-0 tabular-nums', tooLong ? 'text-danger' : 'text-subtle')}>
-            {bytes} / {MAX_MESSAGE_BYTES} bytes
+            {characters} / {MAX_MESSAGE_LENGTH} characters
           </span>
         </div>
       </div>

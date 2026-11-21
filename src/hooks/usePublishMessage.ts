@@ -30,7 +30,7 @@ export function usePublishMessage() {
     writeContract({
       address: GUESTBOOK_ADDRESS,
       abi: guestbookAbi,
-      functionName: 'postMessage',
+      functionName: 'addMessage',
       args: [text],
       chainId: ARC_CHAIN_ID,
     })
