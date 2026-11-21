@@ -2,9 +2,14 @@ import { Badge } from '@/components/ui/Badge'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { SetupChecklist } from '@/components/ui/SetupChecklist'
+import { useInjectedWallet } from '@/hooks/useInjectedWallet'
+import { useQuote } from '@/hooks/useQuote'
+import { useSwapForm } from '@/hooks/useSwapForm'
+import { useTokenInfo } from '@/hooks/useToken'
 import { UNISWAP_QUOTER_ADDRESS } from '@/lib/env'
 import { CIRBTC, USDC } from '@/lib/tokens'
-import { useTokenInfo } from '@/hooks/useToken'
+import { ConfirmPanel } from './ConfirmPanel'
+import { ReviewPanel } from './ReviewPanel'
 import { SwapCard } from './SwapCard'
 import { SwapFlow } from './SwapFlow'
 import { TokenFactCard } from './TokenFactCard'
@@ -12,7 +17,9 @@ import { TokenFactCard } from './TokenFactCard'
 function useChecklist() {
   const usdc = useTokenInfo(USDC.address)
   const cirbtc = useTokenInfo(CIRBTC.address)
+  const wallet = useInjectedWallet()
   return [
+    wallet,
     {
       label: 'USDC token',
       ready: usdc.decimals === USDC.decimals,
@@ -26,12 +33,14 @@ function useChecklist() {
     {
       label: 'Uniswap quoter',
       ready: Boolean(UNISWAP_QUOTER_ADDRESS),
-      detail: UNISWAP_QUOTER_ADDRESS ? 'VITE_UNISWAP_QUOTER_ADDRESS is set' : 'Set VITE_UNISWAP_QUOTER_ADDRESS',
+      detail: UNISWAP_QUOTER_ADDRESS ? 'VITE_UNISWAP_QUOTER_ADDRESS is set' : 'Missing: set VITE_UNISWAP_QUOTER_ADDRESS',
     },
   ]
 }
 
 export function SwapExplorer() {
+  const form = useSwapForm()
+  const quote = useQuote(form)
   const checklist = useChecklist()
 
   return (
@@ -39,13 +48,15 @@ export function SwapExplorer() {
       <SectionHeader
         eyebrow="Section 01"
         title="Swap Explorer"
-        description="Explore a USDC to cirBTC swap on Arc Testnet. See both tokens verified straight from the chain, preview the swap inputs, and learn each step before any transaction exists."
+        description="Explore a USDC and cirBTC swap on Arc Testnet. Choose the tokens, enter an amount, and walk through the quote, fees and confirmation steps. This is a read-only preview: nothing is sent."
         aside={<Badge tone="accent">Read-only preview</Badge>}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
-        <div>
-          <SwapCard />
+        <div className="space-y-6">
+          <SwapCard form={form} quote={quote} />
+          <ReviewPanel form={form} />
+          <ConfirmPanel form={form} />
         </div>
         <div className="space-y-6">
           <Card>

@@ -3,13 +3,17 @@ import { AddressLink } from '@/components/ui/AddressLink'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { SetupChecklist } from '@/components/ui/SetupChecklist'
 import { useGuestbookMessages } from '@/hooks/useGuestbook'
-import { GUESTBOOK_ADDRESS } from '@/lib/env'
+import { useInjectedWallet } from '@/hooks/useInjectedWallet'
+import { usePublishMessage } from '@/hooks/usePublishMessage'
+import { GUESTBOOK_ADDRESS, WRITES_ENABLED } from '@/lib/env'
 import { ContractPlan } from './ContractPlan'
 import { MessageForm } from './MessageForm'
 import { MessageList } from './MessageList'
 
 export function Guestbook() {
   const guestbook = useGuestbookMessages()
+  const publish = usePublishMessage()
+  const wallet = useInjectedWallet()
 
   return (
     <div className="space-y-8">
@@ -19,8 +23,8 @@ export function Guestbook() {
         description="Connect a wallet, publish a public message, and read what others left. Every message lives in a smart contract on Arc, not on a server."
         aside={
           GUESTBOOK_ADDRESS ? (
-            <div className="flex items-center gap-2">
-              <Badge tone="success">Contract live</Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="success">Contract set</Badge>
               <AddressLink address={GUESTBOOK_ADDRESS} />
             </div>
           ) : (
@@ -31,18 +35,24 @@ export function Guestbook() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
         <div className="space-y-6">
-          <MessageForm onPosted={guestbook.refetch} />
+          <MessageForm publish={publish} onPosted={guestbook.refetch} />
           {!GUESTBOOK_ADDRESS && <ContractPlan />}
         </div>
         <div className="space-y-6">
-          <MessageList guestbook={guestbook} />
+          <MessageList guestbook={guestbook} publish={publish} />
           <SetupChecklist
             title="Setup status"
             items={[
+              wallet,
               {
                 label: 'Guestbook contract',
                 ready: Boolean(GUESTBOOK_ADDRESS),
-                detail: GUESTBOOK_ADDRESS ? 'VITE_GUESTBOOK_ADDRESS is set' : 'Deploy it, then set VITE_GUESTBOOK_ADDRESS',
+                detail: GUESTBOOK_ADDRESS ? 'VITE_GUESTBOOK_ADDRESS is set' : 'Missing: deploy it, then set VITE_GUESTBOOK_ADDRESS',
+              },
+              {
+                label: 'Transactions',
+                ready: WRITES_ENABLED,
+                detail: WRITES_ENABLED ? 'Enabled' : 'Switched off in this prototype (WRITES_ENABLED in src/lib/env.ts)',
               },
             ]}
           />

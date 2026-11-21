@@ -39,11 +39,16 @@ src/
 
 | Area | State |
 | --- | --- |
-| Shell, navigation, header, network status, wallet | Done |
-| Swap Explorer: live token facts, amount entry, slippage chips, flow explainer | Done (no quote, no swap) |
-| Guestbook: form, list, loading/empty/error states | Done, gated until a contract address is set |
+| Shell, navigation, header, environment banner | Done |
+| Wallet: injected wallets via ConnectKit, address menu with disconnect, network guard (Arc Testnet only) | Done |
+| Swap Explorer: token selector, amount, quote states, fee review, confirmation checklist | Done (no quote source, no swap) |
+| Guestbook: form, entries with address and status, pending entry, loading/empty/error states | Done, inert until a contract address is set and `WRITES_ENABLED` is true |
 | Guestbook contract | Not written or deployed |
 | Uniswap quoting and swap execution | Not started |
+
+## Environments
+
+Arc Testnet is the only configured chain; mainnets are not in the wagmi config, so a wallet on any other network is shown as unsupported with a switch prompt. `WRITES_ENABLED` in `src/lib/env.ts` is the single switch for anything that sends a transaction and is `false` for now.
 
 ## Next steps
 

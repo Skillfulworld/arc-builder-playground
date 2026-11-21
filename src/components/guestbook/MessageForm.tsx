@@ -1,52 +1,46 @@
 import { useEffect, useRef, useState } from 'react'
 import { ConnectKitButton } from 'connectkit'
 import { ExternalLink } from 'lucide-react'
-import { useAccount, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { Button } from '@/components/ui/Button'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { Notice } from '@/components/ui/Notice'
-import { ARC_CHAIN_ID, explorerTxUrl } from '@/lib/arc'
+import { useNetwork } from '@/hooks/useNetwork'
+import type { PublishState } from '@/hooks/usePublishMessage'
+import { explorerTxUrl } from '@/lib/arc'
 import { cn } from '@/lib/cn'
 import { GUESTBOOK_ADDRESS } from '@/lib/env'
-import { byteLength, describeTxError, guestbookAbi, MAX_MESSAGE_BYTES } from '@/lib/guestbook'
+import { byteLength, MAX_MESSAGE_BYTES } from '@/lib/guestbook'
 
-export function MessageForm({ onPosted }: { onPosted: () => void }) {
-  const { isConnected, chainId } = useAccount()
-  const { switchChain, isPending: switching } = useSwitchChain()
+interface MessageFormProps {
+  publish: PublishState
+  onPosted: () => void
+}
+
+export function MessageForm({ publish, onPosted }: MessageFormProps) {
+  const network = useNetwork()
   const [text, setText] = useState('')
-
-  const { writeContract, data: hash, isPending, error, reset } = useWriteContract()
-  const { isLoading: confirming, isSuccess } = useWaitForTransactionReceipt({ hash, chainId: ARC_CHAIN_ID })
+  const { status, hash, canSend } = publish
 
   const onPostedRef = useRef(onPosted)
   useEffect(() => {
     onPostedRef.current = onPosted
   })
-
   useEffect(() => {
-    if (isSuccess) onPostedRef.current()
-  }, [isSuccess])
+    if (status === 'success') onPostedRef.current()
+  }, [status])
 
   // After a confirmed post the box reads as empty; typing again clears the receipt.
-  const current = isSuccess ? '' : text
+  const current = status === 'success' ? '' : text
   const bytes = byteLength(current)
   const tooLong = bytes > MAX_MESSAGE_BYTES
   const trimmed = current.trim()
-  const wrongNetwork = isConnected && chainId !== ARC_CHAIN_ID
-  const busy = isPending || confirming
-  const errorText = error ? describeTxError(error) : null
+  const busy = status === 'awaiting-wallet' || status === 'confirming'
 
-  const submit = () => {
-    if (!GUESTBOOK_ADDRESS || !trimmed || tooLong) return
-    reset()
-    writeContract({
-      address: GUESTBOOK_ADDRESS,
-      abi: guestbookAbi,
-      functionName: 'postMessage',
-      args: [trimmed],
-      chainId: ARC_CHAIN_ID,
-    })
-  }
+  const disabledReason = !GUESTBOOK_ADDRESS
+    ? 'Contract not deployed yet'
+    : !canSend
+      ? 'Publishing is switched off'
+      : null
 
   return (
     <Card strong className="space-y-4">
@@ -60,24 +54,25 @@ export function MessageForm({ onPosted }: { onPosted: () => void }) {
           id="guestbook-message"
           value={current}
           onChange={(event) => {
-            if (isSuccess) reset()
+            if (status === 'success') publish.reset()
             setText(event.target.value)
           }}
-          disabled={!GUESTBOOK_ADDRESS || busy}
+          disabled={busy}
           rows={4}
-          placeholder={GUESTBOOK_ADDRESS ? 'Write something for the chain to remember…' : 'Available once the contract is deployed'}
+          placeholder="Write something for the chain to remember…"
           aria-invalid={tooLong}
+          aria-describedby="guestbook-help"
           className="w-full resize-none rounded-2xl border border-line bg-canvas/40 p-4 text-base text-ink outline-none transition focus:border-line-strong disabled:opacity-60"
         />
-        <div className="mt-2 flex items-center justify-between text-xs">
+        <div id="guestbook-help" className="mt-2 flex items-center justify-between gap-3 text-xs">
           <span className="text-subtle">Public and permanent. Anyone can read it.</span>
-          <span className={cn('tabular-nums', tooLong ? 'text-danger' : 'text-subtle')}>
+          <span className={cn('shrink-0 tabular-nums', tooLong ? 'text-danger' : 'text-subtle')}>
             {bytes} / {MAX_MESSAGE_BYTES} bytes
           </span>
         </div>
       </div>
 
-      {!isConnected ? (
+      {!network.isConnected ? (
         <ConnectKitButton.Custom>
           {({ show }) => (
             <Button onClick={show} className="w-full">
@@ -85,25 +80,33 @@ export function MessageForm({ onPosted }: { onPosted: () => void }) {
             </Button>
           )}
         </ConnectKitButton.Custom>
-      ) : wrongNetwork ? (
-        <Button onClick={() => switchChain({ chainId: ARC_CHAIN_ID })} loading={switching} className="w-full">
+      ) : network.wrongNetwork ? (
+        <Button onClick={network.switchToArc} loading={network.switching} className="w-full">
           Switch to Arc Testnet
         </Button>
       ) : (
-        <Button onClick={submit} disabled={!GUESTBOOK_ADDRESS || !trimmed || tooLong} loading={busy} className="w-full">
-          {!GUESTBOOK_ADDRESS
-            ? 'Contract not deployed yet'
-            : isPending
-              ? 'Confirm in your wallet…'
-              : confirming
-                ? 'Publishing…'
-                : 'Publish message'}
+        <Button
+          onClick={() => publish.publish(trimmed)}
+          disabled={Boolean(disabledReason) || !trimmed || tooLong}
+          loading={busy}
+          className="w-full"
+        >
+          {disabledReason ??
+            (status === 'awaiting-wallet' ? 'Confirm in your wallet…' : status === 'confirming' ? 'Publishing…' : 'Publish message')}
         </Button>
       )}
 
-      {errorText && <Notice tone="danger">{errorText}</Notice>}
+      {disabledReason && network.isReady && (
+        <p className="text-pretty text-center text-xs text-subtle">
+          {GUESTBOOK_ADDRESS
+            ? 'Transactions are switched off at this stage, so nothing can be sent.'
+            : 'Set VITE_GUESTBOOK_ADDRESS after the contract is deployed. Nothing can be sent until then.'}
+        </p>
+      )}
 
-      {isSuccess && hash && (
+      {status === 'error' && publish.errorMessage && <Notice tone="danger">{publish.errorMessage}</Notice>}
+
+      {status === 'success' && hash && (
         <Notice>
           Message published.{' '}
           <a

@@ -6,7 +6,7 @@
 import type { Address } from 'viem'
 
 export interface TokenFact {
-  symbol: string
+  symbol: TokenSymbol
   name: string
   address: Address
   /** Decimals documented by Arc. USDC is shown in its 6-decimal ERC-20 view only. */
@@ -22,6 +22,8 @@ export const USDC: TokenFact = {
   note: 'Native gas token on Arc. This is its 6-decimal ERC-20 view.',
 }
 
+export type TokenSymbol = 'USDC' | 'cirBTC'
+
 export const CIRBTC: TokenFact = {
   symbol: 'cirBTC',
   name: 'Circle wrapped Bitcoin',
@@ -29,3 +31,7 @@ export const CIRBTC: TokenFact = {
   decimals: 8,
   note: 'Circle wrapped Bitcoin on Arc. Uses 8 decimals like Bitcoin.',
 }
+/** Tokens offered in the Swap Explorer. */
+export const TOKENS: Record<TokenSymbol, TokenFact> = { USDC, cirBTC: CIRBTC }
+
+export const otherToken = (symbol: TokenSymbol): TokenSymbol => (symbol === 'USDC' ? 'cirBTC' : 'USDC')
